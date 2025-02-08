@@ -31,11 +31,11 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-av",
-      "expo-speech"
+      "expo-av"
     ],
     "extra": {
       "eas": {
