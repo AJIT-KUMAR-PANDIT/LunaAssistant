@@ -39,6 +39,10 @@ args = "Build App Bundle"
 task = "workflow.run"
 args = "Expo Development"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
 [[workflows.workflow]]
 name = "Expo Web"
 author = "agent"
@@ -80,7 +84,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 -m http.server 3001 --directory dist/python & npx expo start --web --port 3000"
+args = "npx expo start --web --port 3000 --no-dev-client"
 waitForPort = 3000
 
 [[workflows.workflow]]
@@ -139,6 +143,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx expo start --web --port 3000"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo start --web --port 3000 --no-https"
 waitForPort = 3000
 
 [deployment]

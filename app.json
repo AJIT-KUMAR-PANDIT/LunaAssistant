@@ -24,7 +24,6 @@
         "backgroundColor": "#1a1a1a"
       },
       "package": "com.lunaassistant",
-      "versionCode": 1,
       "permissions": [
         "RECORD_AUDIO",
         "MODIFY_AUDIO_SETTINGS"
@@ -35,7 +34,7 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-av"
+      ["expo-av"]
     ],
     "extra": {
       "eas": {
