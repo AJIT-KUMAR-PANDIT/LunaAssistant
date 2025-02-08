@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.11"]
+modules = ["nodejs-20", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
@@ -15,6 +15,26 @@ author = "agent"
 task = "workflow.run"
 args = "Expo Web"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Distribution"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Python Backend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Android Bundle"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build App Bundle"
+
 [[workflows.workflow]]
 name = "Expo Web"
 author = "agent"
@@ -30,12 +50,92 @@ task = "shell.exec"
 args = "npx expo start --web --port 3000"
 waitForPort = 3000
 
+[[workflows.workflow]]
+name = "Build Distribution"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 scripts/build_python.py && npx expo export --platform web"
+
+[[workflows.workflow]]
+name = "Development"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 3001 --directory dist/python & npx expo start --web --port 3000"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Python Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 3001 --directory dist/python"
+waitForPort = 3001
+
+[[workflows.workflow]]
+name = "Build Android Bundle"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 scripts/build_python.py && cd android && ./gradlew bundleRelease && cd .. && mv android/app/build/outputs/bundle/release/app-release.aab ./luna-assistant.aab"
+
+[[workflows.workflow]]
+name = "Build App Bundle"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "eas build --platform android --profile production --local"
+
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 3000"]
 
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 3002
+externalPort = 3002
 
 [[ports]]
 localPort = 19006
