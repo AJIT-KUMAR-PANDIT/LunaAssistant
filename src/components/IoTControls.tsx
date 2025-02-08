@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Switch, Text } from 'react-native-paper';
-import { toggleDevice } from '../services/iotService';
 
 interface DeviceState {
   name: string;
@@ -20,17 +19,6 @@ export default function IoTControls() {
     const newDevices = [...devices];
     newDevices[index].isOn = !newDevices[index].isOn;
     setDevices(newDevices);
-
-    try {
-      await toggleDevice(
-        newDevices[index].name,
-        newDevices[index].isOn
-      );
-    } catch (error) {
-      // Revert state if API call fails
-      newDevices[index].isOn = !newDevices[index].isOn;
-      setDevices(newDevices);
-    }
   };
 
   return (

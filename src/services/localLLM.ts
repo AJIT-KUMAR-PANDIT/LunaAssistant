@@ -25,12 +25,14 @@ export async function processLocalLLM(text: string): Promise<LLMResponse> {
 
       pythonProcess.stderr.on('data', (data) => {
         errorOutput += data.toString();
+        console.error('Local LLM Error:', errorOutput);
       });
 
       pythonProcess.on('close', (code) => {
         if (code !== 0) {
-          console.error('Local LLM Error:', errorOutput);
-          reject(new Error('Failed to process text with local LLM'));
+          console.error('Process exited with code:', code);
+          console.error('Error output:', errorOutput);
+          reject(new Error(`Failed to process text with local LLM (Exit code: ${code})`));
           return;
         }
 
@@ -38,6 +40,7 @@ export async function processLocalLLM(text: string): Promise<LLMResponse> {
           const result = JSON.parse(output);
           resolve(result);
         } catch (e) {
+          console.error('JSON Parse Error:', e);
           reject(new Error('Invalid response from local LLM'));
         }
       });

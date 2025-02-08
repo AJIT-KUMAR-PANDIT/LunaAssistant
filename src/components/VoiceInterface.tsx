@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import * as Speech from 'expo-speech';
 import { Audio } from 'expo-av';
 import MicrophoneAnimation from './MicrophoneAnimation';
 import IoTControls from './IoTControls';
-import { processAIResponse } from '../services/openai';
-import { startRecording, stopRecording } from '../services/voiceService';
+import { processLocalLLM } from '../services/localLLM';
 
 export default function VoiceInterface() {
   const [isListening, setIsListening] = useState(false);
@@ -16,7 +15,9 @@ export default function VoiceInterface() {
 
   useEffect(() => {
     (async () => {
-      await Audio.requestPermissionsAsync();
+      if (Platform.OS === 'ios') {
+        await Audio.requestPermissionsAsync();
+      }
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
@@ -24,30 +25,36 @@ export default function VoiceInterface() {
     })();
   }, []);
 
-  const handleStartListening = async () => {
+  const startRecording = async () => {
     try {
+      const recording = new Audio.Recording();
+      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      await recording.startAsync();
+      setRecording(recording);
       setIsListening(true);
-      const recordingObject = await startRecording();
-      setRecording(recordingObject);
     } catch (error) {
       console.error('Failed to start recording:', error);
     }
   };
 
-  const handleStopListening = async () => {
+  const stopRecording = async () => {
     if (!recording) return;
-    
+
     try {
       setIsListening(false);
-      const transcriptText = await stopRecording(recording);
-      setTranscript(transcriptText);
-      
-      // Process with AI
-      const aiResponse = await processAIResponse(transcriptText);
-      setResponse(aiResponse);
-      
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      // In a real application, you would send `uri` to a transcription service.
+      // For this demo, we use a mock transcript.
+      const mockTranscript = "Turn off Dad's room lights";
+      setTranscript(mockTranscript);
+
+      // Process with local LLM
+      const result = await processLocalLLM(mockTranscript);
+      setResponse(result.response);
+
       // Speak response
-      Speech.speak(aiResponse, {
+      Speech.speak(result.response, {
         language: 'en',
         pitch: 1,
         rate: 0.9,
@@ -61,23 +68,23 @@ export default function VoiceInterface() {
     <View style={styles.container}>
       <Surface style={styles.surface}>
         <Text style={styles.header}>Voice Assistant</Text>
-        
+
         <View style={styles.transcriptContainer}>
           <Text style={styles.transcriptLabel}>You said:</Text>
           <Text style={styles.transcript}>{transcript || 'Tap to speak'}</Text>
         </View>
-        
+
         <View style={styles.responseContainer}>
           <Text style={styles.responseLabel}>Assistant:</Text>
           <Text style={styles.response}>{response || 'Waiting for input...'}</Text>
         </View>
-        
-        <MicrophoneAnimation 
+
+        <MicrophoneAnimation
           isListening={isListening}
-          onPressIn={handleStartListening}
-          onPressOut={handleStopListening}
+          onPressIn={startRecording}
+          onPressOut={stopRecording}
         />
-        
+
         <IoTControls />
       </Surface>
     </View>
