@@ -1,0 +1,24 @@
+# 1. Install required CLIs
+npm install -g eas-cli expo-cli
+
+# 2. Install project dependencies
+npm install
+
+# 3. Install Python dependencies for local LLM
+pip install llama-cpp-python numpy onnx onnxruntime openai torch transformers
+
+# 4. Place model file
+# Copy your luna.gguf model file to src/models/luna.gguf
+
+# 5. Build Python components
+python3 scripts/build_python.py
+
+# 6. For development testing (APK):
+eas build --platform android --profile development --local
+
+# 7. For production release (AAB):
+eas build --platform android --profile production --local
+
+# Note: The build output will be:
+# - Development: luna-assistant.apk
+# - Production: luna-assistant.aab

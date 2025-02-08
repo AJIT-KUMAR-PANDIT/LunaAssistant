@@ -35,6 +35,10 @@ args = "Build Android Bundle"
 task = "workflow.run"
 args = "Build App Bundle"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Expo Development"
+
 [[workflows.workflow]]
 name = "Expo Web"
 author = "agent"
@@ -121,6 +125,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "eas build --platform android --profile production --local"
+
+[[workflows.workflow]]
+name = "Expo Development"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo start"
+waitForPort = 19000
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port 3000"]
